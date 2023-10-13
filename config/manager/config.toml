@@ -1,0 +1,41 @@
+[api]
+addr = ":9410"
+
+[mqtt]
+urls = ["mqtt://csms-host:1883"]
+
+[ocpi]
+addr = ":9411"
+external_url = "http://lb:9411"
+country_code = "GB"
+party_id = "TWK"
+
+[storage]
+#type = "firestore"
+#firestore.project_id = "*detect-project-id*"
+type="in_memory"
+
+[contract_cert_validator]
+type = "ocsp"
+
+[contract_cert_validator.ocsp.root_certs]
+type = "opcp"
+opcp.url = "https://open.plugncharge-test.hubject.com"
+opcp.ttl = "24h"
+opcp.auth.type = "hubject_test_token"
+opcp.auth.hubject_test_token.url = "https://hubject.stoplight.io/api/v1/projects/cHJqOjk0NTg5/nodes/6bb8b3bc79c2e-authorization-token"
+opcp.auth.hubject_test_token.ttl = "6h"
+
+[contract_cert_provider]
+type = "opcp"
+opcp.url = "https://open.plugncharge-test.hubject.com"
+opcp.auth.type = "hubject_test_token"
+opcp.auth.hubject_test_token.url = "https://hubject.stoplight.io/api/v1/projects/cHJqOjk0NTg5/nodes/6bb8b3bc79c2e-authorization-token"
+opcp.auth.hubject_test_token.ttl = "6h"
+
+[charge_station_cert_provider]
+type = "opcp"
+opcp.url = "https://open.plugncharge-test.hubject.com"
+opcp.auth.type = "hubject_test_token"
+opcp.auth.hubject_test_token.url = "https://hubject.stoplight.io/api/v1/projects/cHJqOjk0NTg5/nodes/6bb8b3bc79c2e-authorization-token"
+opcp.auth.hubject_test_token.ttl = "6h"

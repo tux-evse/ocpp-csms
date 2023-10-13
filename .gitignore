@@ -1,0 +1,6 @@
+.*.sw*
+*.tar.gz
+_*
+~*
+*.log
+*/node_modules/

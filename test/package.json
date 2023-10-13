@@ -1,0 +1,22 @@
+{
+  "name": "ocpp-test",
+  "version": "2.0.0",
+  "description": "Basic test for maeve-csms in OCPP-1.6",
+  "main": "client-test.js",
+  "engines": {
+    "node": ">=17.3.0"
+  },
+  "keywords": [
+    "ocpp"
+  ],
+  "author": {
+    "name": "Fulup Ar Foll",
+    "url": "https://github.com/tux-evse/ocpp-csms"
+  },
+  "repository": "github:mikuso/tux-evse/ocpp-csms",
+  "homepage": "https://github.com/tux-evse/ocpp-csms/blob/main/README.md",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "ocpp-rpc": "^2.0.0"
+  }
+}
