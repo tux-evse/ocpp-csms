@@ -4,3 +4,6 @@ _*
 ~*
 *.log
 */node_modules/
+*.pem
+csms.key
+csms.csr
