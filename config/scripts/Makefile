@@ -24,7 +24,7 @@ csms.pem: csms.csr
 	rm -f $(temp_file)
 
 cpo_sub_ca1.pem cpo_sub_ca2.pem root-V2G-cert.pem trust.pem:
-	../../scripts/get-ca-cert.sh
+	../scripts/get-ca-cert.sh
 
 .PHONY: clean
 clean:

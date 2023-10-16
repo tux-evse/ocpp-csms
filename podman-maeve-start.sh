@@ -9,19 +9,17 @@
 # All exchange between container should go true 'csms-pod' ip-addr/name
 
 if test -z "$MAEVE_SRCDIR"; then
-    MAEVE_SRCDIR=`.`
+    export MAEVE_SRCDIR='.'
 fi
 
 if test -z "$MAEVE_CONFDIR"; then
-    MAEVE_CONFDIR=`dirname $0`
+    export MAEVE_CONFDIR=`dirname $0`
 fi
 
-if ! test -f $MAEVE_CONFDIR/config/certificates/csms.pem; then
-   echo "ERROR: invalid \$MAEVE_SRCDIR='$MAEVE_SRCDIR' or config/certificate not generated"
-   echo "Did you mean => MAEVE_SRCDIR=. $0"
-   exit
-else
-   chmod a+r $MAEVE_CONFDIR/config/certificates/csms.pem
+# if needed regenerate TLLS+OCCP certificates
+if ! test -f "$MAEVE_CONFDIR/config/certificates/csms.pem"; then
+    make --directory="$MAEVE_CONFDIR/config/certificates" --file="../../config/scripts/Makefile"
+    chmod -f a+r $MAEVE_CONFDIR/config/certificates/*
 fi
 
 CSMS_ADDR=`getent hosts csms-host | awk '{ print $1 }'`

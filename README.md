@@ -7,16 +7,18 @@
 
 ## Config
 
-* build development certificate: ```(cd config/certificates; make)```
-* *csms-host*: should point to ip-addr of the containers pod (edit /etc/hosts)
+*csms-host*: should point to ip-addr of the containers pod (edit /etc/hosts)
   * privileged: set 'csms-host' to a valid ip-addr within podman bridge
   * unprivileged: set 'csms-host' as an alias to localhost
 
 ## rebuilding & start docker containers
 
-Build and start podman containers. The script should work for both privileged and un-privilege Podman mode. MAEVE_SRCDIR should point to the git clone of maeve-csms project.
+Build and start podman maeve-csms containers. The script should work for both privileged and un-privilege Podman mode. MAEVE_SRCDIR should point to the git clone of maeve-csms project.
+
+if not config/certificates/csms.pem is not present, the script should regenerate both TLS and https://hubject.stoplight.io certificates. (check https://hubject.stoplight.io/ for further information)
+
 ```
-MAEVE_SRCDIR=../maeve-csms ./podman-create-pod.sh
+MAEVE_SRCDIR=../maeve-csms ./podman-maeve-start.sh
 ```
 Check containers are up and running
 ```
