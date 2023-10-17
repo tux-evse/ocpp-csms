@@ -23,6 +23,7 @@ fi
 
 # if needed regenerate TLLS+OCCP certificates
 if ! test -f "$MAEVE_CONFDIR/config/certificates/csms.pem"; then
+    mkdir -p $MAEVE_CONFDIR/config/certificates
     make --directory="$MAEVE_CONFDIR/config/certificates" --file="../../config/scripts/Makefile"
     chmod -f a+r $MAEVE_CONFDIR/config/certificates/*
 fi
@@ -33,26 +34,26 @@ if test -z "$CSMS_ADDR"; then
   exit 1
 fi
 
+# restart from stratch
+echo "cleaning old 'csms-pod' containers"
+podman pod rm -f csms-pod
 
 # create podman/pod
 if test "$UID" != 0; then
   # unprivileges mode: containers port are exposed through localhost port forwaring
-  podman pod create --name=csms-pod --hostname=csms-host  -p 9310:9310 -p 9311:9311 -p 9312:9312 -p 9410:9410 -p 9411:9411 -v $MAEVE_CONFDIR/config:/config:Z
+  podman pod create --name=csms-pod --hostname=csms-host -p 9310:9310 -p 9311:9311 -p 9312:9312 -p 9410:9410 -p 9411:9411 -v $MAEVE_CONFDIR/config:/config:Z
 else
   # privileged mode: containers use a routable ip-addr from podman default bridge
   podman pod create --name=csms-pod --hostname=csms-host --ip=$CSMS_ADDR --network=podman  -v $MAEVE_CONFDIR/config:/config:Z # privileged
 fi
 
 # after pod creation csms-host should be pingable
-ping -c 1 -w 1 $CSMS_ADDR
+ping -q -c 1 -w 1 $CSMS_ADDR
 if test $? != 0; then
   echo "ERROR: Fail to ping [csms-host=$CSMS_ADDR] please check /etc/hosts "
   exit 1
 fi
 
-# restart from stratch
-echo "cleaning old 'csms-pod' containers"
-podman pod rm -f csms-pod
 
 # rebuild local-image
 for DOCKER_DIR in  $MAEVE_SRCDIR/*; do
@@ -60,7 +61,7 @@ for DOCKER_DIR in  $MAEVE_SRCDIR/*; do
     if test -f $DOCKER_FILE; then
         DOCKER_IMG=`basename $DOCKER_DIR`
         echo "Building '$DOCKER_IMG' images"
-        podman build -t $DOCKER_IMG -f $DOCKER_FILE
+        podman build -t csms-$DOCKER_IMG -f $DOCKER_FILE
         if test $? != 0; then
            echo "Fail to rebuild  $DOCKER_FILE"
            exit
