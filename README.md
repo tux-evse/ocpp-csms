@@ -45,12 +45,19 @@ cd test
 npm install
 node client-test.js
 ```
+Warning: default config use in RAM storage and charger-id are deleted at each restart of the csms containers. When having a 404/authorize error make sure your have provision the charger-id with the right profile and passwd access.
 
 ##
 
 ## Debug
 
-Access containers log
+Access csms-gateway log
+```
+podman stop csms-gateway
+podman start -a csms-gateway
+```
+
+Access all containers log
 ```
 podman pod logs -f csms-pod
 ```
