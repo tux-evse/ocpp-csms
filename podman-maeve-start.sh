@@ -34,15 +34,12 @@ if ! test -f "$MAEVE_CONFDIR/config/certificates/trust.pem"; then
     fi
 fi
 
-exit
-
 CSMS_ADDR=`getent hosts csms-host | awk '{ print $1 }'`
 if test -z "$CSMS_ADDR"; then
   echo "ERROR: 'csms-host' should be resolvable and point to podman bridge(privileged) or localhost(un-privileged)"
   exit 1
 fi
 
-exit
 # restart from stratch
 echo "cleaning old 'csms-pod' containers"
 podman pod rm -f csms-pod
