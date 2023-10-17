@@ -17,16 +17,24 @@ if test -z "$MAEVE_CONFDIR"; then
 fi
 
 if ! test -f "$MAEVE_SRCDIR/manager/Dockerfile"; then
-  echo "Error: invalid 'maeve-scms' sources not found. Check => MAEVE_SRCDIR=../xxxx/maeve-csms ./podman-maeve-start.sh"
+  echo "ERROR: invalid 'maeve-scms' sources not found. Check => MAEVE_SRCDIR=../xxxx/maeve-csms ./podman-maeve-start.sh"
   exit 1
 fi
 
 # if needed regenerate TLLS+OCCP certificates
-if ! test -f "$MAEVE_CONFDIR/config/certificates/csms.pem"; then
+if ! test -f "$MAEVE_CONFDIR/config/certificates/trust.pem"; then
     mkdir -p $MAEVE_CONFDIR/config/certificates
     make --directory="$MAEVE_CONFDIR/config/certificates" --file="../../config/scripts/Makefile"
     chmod -f a+r $MAEVE_CONFDIR/config/certificates/*
+
+    if ! test -s "$MAEVE_CONFDIR/config/certificates/trust.pem"; then
+        echo "ERROR: fail to retreive hubject.stoplight.io certificates (check daily authentication token)"
+        rm $MAEVE_CONFDIR/config/certificates/trust.pem
+        exit 1
+    fi
 fi
+
+exit
 
 CSMS_ADDR=`getent hosts csms-host | awk '{ print $1 }'`
 if test -z "$CSMS_ADDR"; then
@@ -34,6 +42,7 @@ if test -z "$CSMS_ADDR"; then
   exit 1
 fi
 
+exit
 # restart from stratch
 echo "cleaning old 'csms-pod' containers"
 podman pod rm -f csms-pod

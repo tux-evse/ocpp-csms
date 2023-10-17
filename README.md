@@ -3,6 +3,7 @@
 ## Dependencies
 
 * MAEVE-SCSM: source code: https://github.com/thoughtworks/maeve-csms
+* CSMS-certificates: https://hubject.stoplight.io/
 * podman: check podman with ```podman run --rm hello-world```
 
 ## Config
@@ -44,6 +45,8 @@ cd test
 npm install
 node client-test.js
 ```
+
+##
 
 ## Debug
 
