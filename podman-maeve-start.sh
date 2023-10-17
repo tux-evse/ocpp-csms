@@ -16,6 +16,11 @@ if test -z "$MAEVE_CONFDIR"; then
     export MAEVE_CONFDIR=`dirname $0`
 fi
 
+if ! test -f "$MAEVE_SRCDIR/manager/Dockerfile"; then
+  echo "Error: invalid 'maeve-scms' sources not found. Check => MAEVE_SRCDIR=../xxxx/maeve-csms ./podman-maeve-start.sh"
+  exit 1
+fi
+
 # if needed regenerate TLLS+OCCP certificates
 if ! test -f "$MAEVE_CONFDIR/config/certificates/csms.pem"; then
     make --directory="$MAEVE_CONFDIR/config/certificates" --file="../../config/scripts/Makefile"
@@ -25,6 +30,23 @@ fi
 CSMS_ADDR=`getent hosts csms-host | awk '{ print $1 }'`
 if test -z "$CSMS_ADDR"; then
   echo "ERROR: 'csms-host' should be resolvable and point to podman bridge(privileged) or localhost(un-privileged)"
+  exit 1
+fi
+
+
+# create podman/pod
+if test "$UID" != 0; then
+  # unprivileges mode: containers port are exposed through localhost port forwaring
+  podman pod create --name=csms-pod --hostname=csms-host  -p 9310:9310 -p 9311:9311 -p 9312:9312 -p 9410:9410 -p 9411:9411 -v $MAEVE_CONFDIR/config:/config:Z
+else
+  # privileged mode: containers use a routable ip-addr from podman default bridge
+  podman pod create --name=csms-pod --hostname=csms-host --ip=$CSMS_ADDR --network=podman  -v $MAEVE_CONFDIR/config:/config:Z # privileged
+fi
+
+# after pod creation csms-host should be pingable
+ping -c 1 -w 1 $CSMS_ADDR
+if test $? != 0; then
+  echo "ERROR: Fail to ping [csms-host=$CSMS_ADDR] please check /etc/hosts "
   exit 1
 fi
 
@@ -46,15 +68,6 @@ for DOCKER_DIR in  $MAEVE_SRCDIR/*; do
         echo "--- Done localhot/$DOCKER_IMG image"
     fi
 done
-
-# create podman/pod
-if test "$UID" != 0; then
-  # unprivileges mode: containers port are exposed through localhost port forwaring
-  podman pod create --name=csms-pod --hostname=csms-host  -p 9310:9310 -p 9311:9311 -p 9312:9312 -p 9410:9410 -p 9411:9411 -v $MAEVE_CONFDIR/config:/config:Z
-else
-  # privileged mode: containers use a routable ip-addr from podman default bridge
-  podman pod create --name=csms-pod --hostname=csms-host --ip=$CSMS_ADDR --network=podman  -v $MAEVE_CONFDIR/config:/config:Z # privileged
-fi
 
 # start container within pod
 podman create --pod csms-pod --name=csms-debug --interactive alpine
